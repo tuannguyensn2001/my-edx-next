@@ -1,20 +1,25 @@
 import { Radio, RadioGroup, Button, TextField, FormControlLabel, FormControl, FormLabel } from '@mui/material'
 import { useForm, Controller } from 'react-hook-form'
 import { FormSignUpType } from 'src/features/auth/types'
-import ErrorMessage from 'src/features/auth/components/ErrorMessage'
+import axios from 'axios'
 
-function FormSignUp() {
+function FormRegister() {
   const { control, handleSubmit, watch } = useForm<FormSignUpType>({
     defaultValues: {
       name: '',
       email: '',
       password: '',
-      confirm: ''
+      confirm: '',
+      role: 'buyer'
     }
   })
   
   const submit = (data: FormSignUpType) => {
-    console.log(data);    
+    axios.post('http://localhost:5000/api/v1/register', data)
+    .then(res => {console.log(res);
+    })
+    .catch(error => {console.log(error);
+    })
   }
 
   return (
@@ -30,10 +35,9 @@ function FormSignUp() {
                 rules={{
                   required: 'Tên không được để trống!'
                 }}
-                render={({ field, fieldState: {invalid, error} }) => (
+                render={({ field, fieldState: {error} }) => (
                   <div>
-                    <TextField fullWidth label='Tên người dùng'{...field} />
-                    {invalid && <ErrorMessage message={error?.message} />}
+                    <TextField fullWidth label='Tên người dùng'{...field} helperText={error?.message} />
                   </div>
                 )}
               />
@@ -49,10 +53,9 @@ function FormSignUp() {
                     message: 'Email không hợp lệ!'
                   }
                 }}
-                render={({ field, fieldState: {invalid, error} }) => (
+                render={({ field, fieldState: {error} }) => (
                   <div>
-                    <TextField fullWidth label='Email'{...field} />
-                    {invalid && <ErrorMessage message={error?.message} />}
+                    <TextField fullWidth label='Email'{...field} helperText={error?.message} />
                   </div>
                 )}
               />
@@ -68,10 +71,9 @@ function FormSignUp() {
                     message: 'Mật khẩu phải có ít nhất 8 ký tự, ít nhất 1 chữ cái, 1 chữ số và 1 ký tự đặc biệt!'
                   }
                 }}
-                render={({ field, fieldState: {invalid, error} }) => (
+                render={({ field, fieldState: {error} }) => (
                   <div>
-                    <TextField fullWidth label='Mật khẩu' type={'password'} {...field} />
-                    {invalid && <ErrorMessage message={error?.message} />}
+                    <TextField fullWidth label='Mật khẩu' type={'password'} helperText={error?.message} {...field} />
                   </div>
                 )}
               />
@@ -84,10 +86,9 @@ function FormSignUp() {
                   required: 'Mật khẩu không được để trống!',
                   validate: v => v?.trim() === watch('password')?.trim() || 'Mật khẩu không trùng khớp!'
                 }}
-                render={({ field, fieldState: {invalid, error} }) => (
+                render={({ field, fieldState: {error} }) => (
                   <div>
-                    <TextField fullWidth label='Xác nhận mật khẩu' type={'password'} {...field} />
-                    {invalid && <ErrorMessage message={error?.message} />}
+                    <TextField fullWidth label='Xác nhận mật khẩu' type={'password'} helperText={error?.message} {...field} />
                   </div>
                 )}
               />
@@ -99,7 +100,7 @@ function FormSignUp() {
                 rules={{
                   required: 'Chọn vai trò của bạn!'
                 }}
-                render={({ field: { onChange, value }, fieldState: { invalid, error } }) => (
+                render={({ field: { onChange, value } }) => (
                   <div>
                     <FormControl>
                       <FormLabel id='select-role'>Vai trò</FormLabel>
@@ -108,7 +109,6 @@ function FormSignUp() {
                         <FormControlLabel value={'seller'} control={<Radio />} label='Người bán' />
                       </RadioGroup>
                     </FormControl>
-                    {invalid && <ErrorMessage message={error?.message} />}
                   </div>
                 )}
               />
@@ -128,4 +128,4 @@ function FormSignUp() {
   )
 }
 
-export default FormSignUp
+export default FormRegister

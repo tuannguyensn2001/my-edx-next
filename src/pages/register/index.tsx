@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import FormSignUp from 'src/features/auth/components/FormSignUp';
+import FormRegister from 'src/features/auth/components/FormRegister';
 
 function Signup() {
   return (
@@ -8,7 +8,7 @@ function Signup() {
         <title>Đăng ký</title>
       </Head>
       <main>
-        <FormSignUp />
+        <FormRegister />
       </main>
     </div>
   );
