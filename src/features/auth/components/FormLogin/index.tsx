@@ -1,7 +1,12 @@
 import { Button, TextField } from '@mui/material';
-import { useForm } from 'react-hook-form';
+import { AxiosError } from 'axios';
+import { Controller, useForm } from 'react-hook-form';
+import { useMutation } from 'react-query';
+import { toast } from 'react-toastify';
+import { getLogin } from 'src/features/auth/repositories';
 import { FormLoginType } from 'src/features/auth/types';
-import { Controller } from 'react-hook-form';
+import { ResponseLogin } from 'src/features/auth/types/login';
+import { Response } from 'src/types/response';
 
 function FormLogin() {
   const { control, handleSubmit } = useForm<FormLoginType>({
@@ -11,8 +16,27 @@ function FormLogin() {
     },
   });
 
+  const login = useMutation<
+    Response<ResponseLogin>,
+    AxiosError<Response>,
+    FormLoginType
+  >(
+    'login',
+    async (data: FormLoginType) => {
+      return await getLogin(data);
+    },
+    {
+      onSuccess(response) {
+        toast.success(response.message);
+      },
+      onError(error) {
+        toast.error(error.response?.data?.message);
+      },
+    }
+  );
+
   const submit = (data: FormLoginType) => {
-    console.log(data);
+    login.mutate(data);
   };
 
   return (
