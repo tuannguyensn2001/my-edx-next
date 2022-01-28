@@ -3,7 +3,14 @@ import { useForm, Controller } from 'react-hook-form'
 import { FormSignUpType } from 'src/features/auth/types'
 import axios from 'axios'
 
+import LoadingButton from 'src/components/LoadingButton'
+import { useState } from 'react'
+
 function FormRegister() {
+  const [loading, setLoading] = useState(false)
+  const loadingProps = {
+    loading: loading
+  }
   const { control, handleSubmit, watch } = useForm<FormSignUpType>({
     defaultValues: {
       name: '',
@@ -15,11 +22,15 @@ function FormRegister() {
   })
   
   const submit = (data: FormSignUpType) => {
-    axios.post('http://localhost:5000/api/v1/register', data)
-    .then(res => {console.log(res);
-    })
-    .catch(error => {console.log(error);
-    })
+    setLoading(true)
+    setTimeout(() => {
+      axios.post('http://localhost:5000/api/v1/register', data)
+      .then(res => {console.log(res);
+      })
+      .catch(error => {console.log(error);
+      })
+      setLoading(false)
+    }, 3000)
   }
 
   return (
@@ -114,12 +125,13 @@ function FormRegister() {
               />
             </div>
             <div className={'tw-mt-4 tw-flex tw-justify-end'}>
-              <Button
+              {/* <Button
                 type={'submit'}
                 variant={'contained'}
                 size={'large'}>
                 Đăng ký
-              </Button>
+              </Button> */}
+            <LoadingButton {...loadingProps} />
             </div>
           </form>
         </div>

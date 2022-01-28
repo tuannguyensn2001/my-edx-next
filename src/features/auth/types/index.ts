@@ -11,6 +11,6 @@ export interface FormSignUpType {
   role: string;
 }
 
-export interface FormErrorType {
-  message: string | undefined;
+export interface FormLoadingType {
+  loading: boolean;
 }
