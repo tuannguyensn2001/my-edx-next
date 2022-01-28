@@ -1,11 +1,13 @@
-import { Button, TextField } from '@mui/material';
+import { Alert, Button, TextField } from '@mui/material';
 import { AxiosError } from 'axios';
 import { Controller, useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
 import { toast } from 'react-toastify';
+import { useAppDispatch } from 'src/app/store';
 import { getLogin } from 'src/features/auth/repositories';
 import { FormLoginType } from 'src/features/auth/types';
 import { ResponseLogin } from 'src/features/auth/types/login';
+import { setLoggedIn } from 'src/slices/auth';
 import { Response } from 'src/types/response';
 
 function FormLogin() {
@@ -15,6 +17,8 @@ function FormLogin() {
       password: '',
     },
   });
+
+  const dispatch = useAppDispatch();
 
   const login = useMutation<
     Response<ResponseLogin>,
@@ -27,11 +31,10 @@ function FormLogin() {
     },
     {
       onSuccess(response) {
+        dispatch(setLoggedIn(response.data));
         toast.success(response.message);
       },
-      onError(error) {
-        toast.error(error.response?.data?.message);
-      },
+      onError(error) {},
     }
   );
 
@@ -43,6 +46,13 @@ function FormLogin() {
     <div className={'tw-flex tw-justify-center tw-h-screen '}>
       <div className={'tw-w-2/5 tw-flex tw-flex-col tw-justify-center '}>
         <div>
+          <div className={'tw-mb-10'}>
+            {login.isError && (
+              <Alert severity={'error'}>
+                {login.error?.response?.data?.message}
+              </Alert>
+            )}
+          </div>
           <form onSubmit={handleSubmit(submit)}>
             <div>
               <Controller
@@ -58,7 +68,12 @@ function FormLogin() {
                 control={control}
                 name={'password'}
                 render={({ field }) => (
-                  <TextField fullWidth label={'Mật khẩu'} {...field} />
+                  <TextField
+                    type={'password'}
+                    fullWidth
+                    label={'Mật khẩu'}
+                    {...field}
+                  />
                 )}
               />
             </div>
