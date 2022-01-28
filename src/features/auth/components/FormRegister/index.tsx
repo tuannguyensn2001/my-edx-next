@@ -5,15 +5,12 @@ import axios from 'axios'
 
 import LoadingButton from 'src/components/LoadingButton'
 import ToastMessage from 'src/components/ToastMessage'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 function FormRegister() {
   const [loading, setLoading] = useState(false)
-  const [notOk, setNotOk] = useState(false)
+  const [notOk, setNotOk] = useState<boolean>()
   const [responseMessage, setResponseMessage] = useState('')
-  const loadingProps = {
-    loading: loading
-  }
   const { control, handleSubmit, watch } = useForm<FormSignUpType>({
     defaultValues: {
       name: '',
@@ -24,26 +21,34 @@ function FormRegister() {
     }
   })
   
+  useEffect(() => {
+    setTimeout(() => {
+      setNotOk(undefined)
+    }, 4000)
+  }, [notOk])
+
   const submit = (data: FormSignUpType) => {
     setLoading(true)
     setTimeout(() => {
       axios.post('http://localhost:5000/api/v1/register', data)
-      .then(res => {console.log(res)
+      .then(
+        res => {
+          console.log(res)
+          setResponseMessage('Đăng ký thành công')
+          setNotOk(false)
       })
         .catch((error) => {
           if (error.response) {
             console.log('[Register-response]: ', error.response?.data?.message)
             setResponseMessage(error.response?.data?.message)
-            setNotOk(true)
-            setTimeout(() => {
-              setNotOk(false)
-              setResponseMessage('')
-            }, 3000)
           } else if (error.request) {
             console.log('[Register-request]: ', error.request)
+            setResponseMessage(error.request.statusText)
           } else {
             console.log('[Register]: ', error?.message)
+            setResponseMessage(error?.message)
           }
+          setNotOk(true)
       })
       setLoading(false)
     }, 3000)
@@ -52,6 +57,7 @@ function FormRegister() {
   return (
     <div className={'tw-flex tw-justify-center tw-h-screen tw-items-center'}>
       {notOk && <ToastMessage message={responseMessage} severity='error' />}
+      {!notOk && <ToastMessage message={responseMessage} severity='success' />}
       <div className={'tw-w-2/5 tw-flex tw-flex-col tw-bg-slate-50 tw-justify-center tw-p-4 tw-rounded-md tw-shadow-md'}>
         <h1 className={'tw-m-0 tw-mb-4'}>Đăng ký</h1>
         <div>
@@ -142,7 +148,7 @@ function FormRegister() {
               />
             </div>
             <div className={'tw-mt-4 tw-flex tw-justify-end'}>
-              <LoadingButton {...loadingProps} />
+              <LoadingButton loading={loading} />
             </div>
           </form>
         </div>
