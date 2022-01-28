@@ -1,13 +1,16 @@
-import { Radio, RadioGroup, Button, TextField, FormControlLabel, FormControl, FormLabel } from '@mui/material'
+import { Radio, RadioGroup, TextField, FormControlLabel, FormControl, FormLabel } from '@mui/material'
 import { useForm, Controller } from 'react-hook-form'
 import { FormSignUpType } from 'src/features/auth/types'
 import axios from 'axios'
 
 import LoadingButton from 'src/components/LoadingButton'
+import ToastMessage from 'src/components/ToastMessage'
 import { useState } from 'react'
 
 function FormRegister() {
   const [loading, setLoading] = useState(false)
+  const [notOk, setNotOk] = useState(false)
+  const [responseMessage, setResponseMessage] = useState('')
   const loadingProps = {
     loading: loading
   }
@@ -25,9 +28,22 @@ function FormRegister() {
     setLoading(true)
     setTimeout(() => {
       axios.post('http://localhost:5000/api/v1/register', data)
-      .then(res => {console.log(res);
+      .then(res => {console.log(res)
       })
-      .catch(error => {console.log(error);
+        .catch((error) => {
+          if (error.response) {
+            console.log('[Register-response]: ', error.response?.data?.message)
+            setResponseMessage(error.response?.data?.message)
+            setNotOk(true)
+            setTimeout(() => {
+              setNotOk(false)
+              setResponseMessage('')
+            }, 3000)
+          } else if (error.request) {
+            console.log('[Register-request]: ', error.request)
+          } else {
+            console.log('[Register]: ', error?.message)
+          }
       })
       setLoading(false)
     }, 3000)
@@ -35,6 +51,7 @@ function FormRegister() {
 
   return (
     <div className={'tw-flex tw-justify-center tw-h-screen tw-items-center'}>
+      {notOk && <ToastMessage message={responseMessage} severity='error' />}
       <div className={'tw-w-2/5 tw-flex tw-flex-col tw-bg-slate-50 tw-justify-center tw-p-4 tw-rounded-md tw-shadow-md'}>
         <h1 className={'tw-m-0 tw-mb-4'}>Đăng ký</h1>
         <div>
@@ -125,13 +142,7 @@ function FormRegister() {
               />
             </div>
             <div className={'tw-mt-4 tw-flex tw-justify-end'}>
-              {/* <Button
-                type={'submit'}
-                variant={'contained'}
-                size={'large'}>
-                Đăng ký
-              </Button> */}
-            <LoadingButton {...loadingProps} />
+              <LoadingButton {...loadingProps} />
             </div>
           </form>
         </div>
