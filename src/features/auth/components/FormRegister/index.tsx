@@ -9,7 +9,8 @@ import { useEffect, useState } from 'react'
 
 function FormRegister() {
   const [loading, setLoading] = useState(false)
-  const [notOk, setNotOk] = useState<boolean>()
+  const [notOk, setNotOk] = useState(false)
+  const [toast, setToast] = useState(false)
   const [responseMessage, setResponseMessage] = useState('')
   const { control, handleSubmit, watch } = useForm<FormSignUpType>({
     defaultValues: {
@@ -23,9 +24,10 @@ function FormRegister() {
   
   useEffect(() => {
     setTimeout(() => {
-      setNotOk(undefined)
+      setNotOk(false)
+      setToast(false)
     }, 4000)
-  }, [notOk])
+  }, [notOk, toast])
 
   const submit = (data: FormSignUpType) => {
     setLoading(true)
@@ -35,7 +37,7 @@ function FormRegister() {
         res => {
           console.log(res)
           setResponseMessage('Đăng ký thành công')
-          setNotOk(false)
+          setToast(true)
       })
         .catch((error) => {
           if (error.response) {
@@ -48,6 +50,7 @@ function FormRegister() {
             console.log('[Register]: ', error?.message)
             setResponseMessage(error?.message)
           }
+          setToast(true)
           setNotOk(true)
       })
       setLoading(false)
@@ -56,8 +59,7 @@ function FormRegister() {
 
   return (
     <div className={'tw-flex tw-justify-center tw-h-screen tw-items-center'}>
-      {notOk && <ToastMessage message={responseMessage} severity='error' />}
-      {!notOk && <ToastMessage message={responseMessage} severity='success' />}
+      {toast && <ToastMessage message={responseMessage} severity={notOk ? 'error' : 'success'} />}
       <div className={'tw-w-2/5 tw-flex tw-flex-col tw-bg-slate-50 tw-justify-center tw-p-4 tw-rounded-md tw-shadow-md'}>
         <h1 className={'tw-m-0 tw-mb-4'}>Đăng ký</h1>
         <div>
