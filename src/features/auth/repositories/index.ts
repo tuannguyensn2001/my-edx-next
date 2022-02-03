@@ -1,7 +1,8 @@
 import { AxiosResponse } from 'axios';
-import { fetchLogin } from 'src/features/auth/services';
-import { FormLoginType } from 'src/features/auth/types';
+import { fetchLogin, fetchRegister } from 'src/features/auth/services';
+import { FormLoginType, FormRegisterType } from 'src/features/auth/types';
 import { ResponseLogin } from 'src/features/auth/types/login';
+import { ResponseRegister } from 'src/features/auth/types/register'
 import { Response } from 'src/types/response';
 
 export const getLogin = async (
@@ -12,3 +13,8 @@ export const getLogin = async (
   );
   return response.data;
 };
+
+export const getRegister = async (data: FormRegisterType): Promise<Response<ResponseRegister>> => {
+  const response: AxiosResponse<Response<ResponseRegister>> = await fetchRegister(data)
+  return response.data
+}
