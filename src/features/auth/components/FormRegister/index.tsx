@@ -1,4 +1,4 @@
-import { Radio, RadioGroup, TextField, FormControlLabel, FormControl, FormLabel } from '@mui/material'
+import { Radio, RadioGroup, TextField, FormControlLabel, FormControl, FormLabel, Link } from '@mui/material'
 import { useForm, Controller } from 'react-hook-form'
 import { FormRegisterType } from 'src/features/auth/types'
 import LoadingButton from '@mui/lab/LoadingButton'
@@ -9,11 +9,13 @@ import { getRegister } from 'src/features/auth/repositories'
 import { ResponseRegister } from 'src/features/auth/types/register'
 import { Response } from 'src/types/response'
 import { emailPattern, passwordPattern } from 'src/features/auth/define'
+import { useRouter } from 'next/router'
 
 function FormRegister() {
-  const { control, handleSubmit, watch } = useForm<FormRegisterType>({
+  const router = useRouter()
+  const { control, handleSubmit, watch, setError } = useForm<FormRegisterType>({
     defaultValues: {
-      name: '',
+      username: '',
       email: '',
       password: '',
       confirm: '',
@@ -29,12 +31,17 @@ function FormRegister() {
       return await getRegister(data)
     }, {
       onSuccess(response) {
-        console.log([response]);
         toast.success(response.message)
+        router.push('/login')
       },
       onError(error) {
-        if (error.response)
+        if (error.response) {
           toast.error(error.response?.data?.message)
+          // if response message = 'Email đã tồn tại' then set error to 'Email đã tồn tại'
+          if (error.response?.data?.message === 'Email đã tồn tại') {
+            setError('email', { type: 'manual', message: 'Email đã tồn tại, vui lòng chọn email khác' })
+          }
+        }
         else if (error.request)
           toast.error(error.request?.statusText)
         else toast.error(error?.message)
@@ -42,27 +49,31 @@ function FormRegister() {
   })
 
   const submit = (data: FormRegisterType) => {
-    console.log([register]);
-    
     register.mutate(data)
   }
 
   return (
     <div className={'tw-flex tw-justify-center tw-h-screen tw-items-center'}>
-      <div className={'tw-w-2/5 tw-flex tw-flex-col tw-bg-slate-50 tw-justify-center tw-p-4 tw-rounded-md tw-shadow-md'}>
-        <h1 className={'tw-m-0 tw-mb-4'}>Đăng ký</h1>
+      <div className={'tw-flex tw-w-4/5 tw-max-w-screen-xl tw-bg-slate-50 tw-justify-between tw-overflow-hidden tw-rounded-md tw-shadow-md'}>
+        <div className={'tw-bg-register-bg tw-bg-center tw-bg-cover tw-bg-no-repeat tw-w-8/12'}></div>
+        <div className={'tw-flex tw-flex-col tw-p-4 tw-w-4/12'}>
+          <h2 className={'tw-m-0 tw-mb-4'}>Tạo tài khoản mới</h2>
         <div>
           <form onSubmit={handleSubmit(submit)} className={'tw-flex tw-flex-col tw-gap-2'}>
             <div>
               <Controller
                 control={control}
-                name='name'
+                name='username'
                 rules={{
                   required: 'Tên không được để trống!'
                 }}
                 render={({ field, fieldState: {error} }) => (
                   <div>
-                    <TextField fullWidth label='Tên người dùng'{...field} helperText={error?.message} />
+                    <TextField
+                      fullWidth
+                      label='Tên người dùng'{...field}
+                      helperText={error?.message}
+                      error={!!error?.message} />
                   </div>
                 )}
               />
@@ -80,7 +91,11 @@ function FormRegister() {
                 }}
                 render={({ field, fieldState: {error} }) => (
                   <div>
-                    <TextField fullWidth label='Email'{...field} helperText={error?.message} />
+                    <TextField
+                      fullWidth
+                      label='Email'{...field}
+                      helperText={error?.message}
+                      error={!!error?.message} />
                   </div>
                 )}
               />
@@ -98,7 +113,13 @@ function FormRegister() {
                 }}
                 render={({ field, fieldState: {error} }) => (
                   <div>
-                    <TextField fullWidth label='Mật khẩu' type={'password'} helperText={error?.message} {...field} />
+                    <TextField
+                      fullWidth
+                      label='Mật khẩu'
+                      type={'password'}
+                      helperText={error?.message}
+                      error={!!error?.message}
+                      {...field} />
                   </div>
                 )}
               />
@@ -106,14 +127,20 @@ function FormRegister() {
             <div>
               <Controller
                 control={control}
-                name='confirm'
+                name={'confirm'}
                 rules={{
                   required: 'Mật khẩu không được để trống!',
                   validate: v => v?.trim() === watch('password')?.trim() || 'Mật khẩu không trùng khớp!'
                 }}
                 render={({ field, fieldState: {error} }) => (
                   <div>
-                    <TextField fullWidth label='Xác nhận mật khẩu' type={'password'} helperText={error?.message} {...field} />
+                    <TextField
+                      fullWidth
+                      label='Xác nhận mật khẩu'
+                      type={'password'}
+                      helperText={error?.message}
+                      error={!!error?.message}
+                      {...field} />
                   </div>
                 )}
               />
@@ -146,9 +173,14 @@ function FormRegister() {
                 loading={register.isLoading}
                 disabled={register.isLoading}
               >
-              Đăng ký</LoadingButton>
+                Đăng ký
+              </LoadingButton>
+            </div>
+            <div className={'tw-text-center tw-text-xs tw-mt-2 tw-text-gray-500 tw-no-underline'}>Bạn đã có tài khoản? Chuyển đến
+              <Link underline='hover' href={'/login'}> Đăng nhập</Link>
             </div>
           </form>
+        </div>
         </div>
       </div>
     </div>

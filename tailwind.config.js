@@ -5,7 +5,11 @@ module.exports = {
     './src/features/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      backgroundImage: {
+        'register-bg': "url('/pictures/register-bg.png')",
+      },
+    },
   },
   plugins: [],
   prefix: 'tw-',

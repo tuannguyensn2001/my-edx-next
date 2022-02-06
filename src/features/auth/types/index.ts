@@ -4,7 +4,7 @@ export interface FormLoginType {
 }
 
 export interface FormRegisterType {
-  name: string;
+  username: string;
   email: string;
   password: string;
   confirm: string;
